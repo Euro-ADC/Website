@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projet Euro ADC</title>
+    <meta name="description" content="">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+
+    <script src="{{ url_for('static', filename='js/scripts.js') }}" defer></script>
+</head>
+<body>
+    <div class="div-icon-menu" id="div-icon-menu">
+        <img src="" alt="" class="image-icon-menu">
+    </div>
+    <header id="main-header">
+        <div class="div-main-title">
+            <p class="text-main-title">Voices from behind the graves</p>
+        </div>
+    </header>
+    <div class="div-subtitle">
+        <p class="text-subtitle">Un projet de la section européenne du lycée Arcisse de Caumont</p>
+    </div>
+
+    {% for article in articles %}
+    <div class="div-main-content">
+        <p class="text-title-main-content">{{ article.title }}</p>
+        <div class="div-body-main-content">
+            {{ article.content | safe }}
+        </div>
+    </div>
+    {% endfor %}
+</body>
+</html>
