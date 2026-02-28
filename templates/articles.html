@@ -41,19 +41,14 @@
             <p class="text-subtitle">Un projet de la section européenne du lycée Arcisse de Caumont</p>
         </div>
 
-        {% if home_article %}
-        <div class="div-main-content">
-            <p class="text-title-main-content">{{ home_article.title }}</p>
+        {% for article in articles %}
+        <div class="div-main-content" id="{{ article.ref }}">
+            <p class="text-title-main-content">{{ article.title }}</p>
             <div class="div-body-main-content">
-                {{ home_article.content | safe }}
+                {{ article.content | safe }}
             </div>
-            <a href="/articles" class="btn-latest-article">
-                Le dernier article : <b>{{ latest_name }}</b>
-            </a>
         </div>
-        {% else %}
-        <p>Le fichier d'accueil est introuvable.</p>
-        {% endif %}
+        {% endfor %}
     </div>
 </body>
 </html>

@@ -1,15 +1,105 @@
-body{
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
+body {
     margin: 0;
     background-color: rgb(202, 193, 175);
+    font-family: Georgia, serif;
+}
+
+a {
+    color: rgb(90, 62, 53);
+    transition: color 0.3s ease;
+}
+
+a:hover {
+    color: #7a5a4e;
+    text-decoration: underline;
+}
+
+#main-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: filter 0.4s ease;
+}
+
+#main-wrapper.blurred {
+    filter: blur(5px);
+    pointer-events: none;
 }
 
 
+.side-menu {
+    height: 100%;
+    width: 280px;
+    position: fixed;
+    z-index: 2000;
+    top: 0;
+    left: -300px;
+    background-color: rgb(90, 62, 53);
+    transition: 0.4s ease;
+    box-shadow: 5px 0 15px rgba(0, 0, 0, 0.3);
+}
 
-#div-icon-menu{
+.side-menu.active {
+    left: 0;
+}
+
+.close-btn {
+    position: absolute;
+    top: 15px;
+    left: 20px;
+    font-size: 40px;
+    color: white;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.menu-content {
+    padding: 80px 30px 20px 30px;
+    color: white;
+}
+
+.menu-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 30px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    padding-bottom: 10px;
+}
+
+.menu-content nav a {
+    display: block;
+    color: white;
+    text-decoration: none;
+    font-size: 18px;
+    margin-bottom: 20px;
+    transition: 0.3s;
+}
+
+.menu-content nav a:hover {
+    padding-left: 10px;
+    color: #e8eaed;
+}
+
+
+.overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 1500;
+}
+
+.overlay.active {
+    display: block;
+    backdrop-filter: blur(5px);
+}
+
+
+#div-icon-menu {
     height: 55px;
     width: 55px;
     border-radius: 0 0 10px 0;
@@ -21,11 +111,21 @@ body{
     z-index: 100;
 }
 
-#div-icon-menu.scrolled{
+#div-icon-menu.scrolled {
     width: 0;
 }
 
-#main-header{
+.image-icon-menu {
+    width: 50px;
+    height: 50px;
+    position: fixed;
+    top: 2.5px;
+    left: 2.5px;
+    z-index: 101;
+    cursor: pointer;
+}
+
+#main-header {
     width: 100%;
     display: flex;
     justify-content: center;
@@ -33,101 +133,141 @@ body{
     top: 0;
     z-index: 99;
     transition: all 0.6s ease;
-    background-color: transparent;
-
     background-color: rgb(202, 193, 175);
     box-shadow: 0px 6px 10px rgb(202, 193, 175);
 }
 
-#main-header.scrolled{
+#main-header.scrolled {
     background-color: rgb(90, 62, 53);
     box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.4);
 }
 
-#main-header.scrolled .text-main-title{
+#main-header.scrolled .text-main-title {
     color: white;
 }
 
-.div-main-title{
+
+.div-main-title {
     height: 50px;
     width: 500px;
     margin-top: 5px;
-
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-direction: column;
 }
 
-.text-main-title{
-    font-family: Georgia, 'Times New Roman', Times, serif;
+.text-main-title {
     font-size: 30px;
     margin: 0;
     transition: color 0.6s ease;
 }
 
-.div-subtitle{
-    height: 30px;
+.div-subtitle {
     width: 700px;
-    margin-top: 5px;
-    margin-bottom: 50px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
+    margin: 5px 0 50px 0;
+    text-align: center;
 }
 
-.text-subtitle{
-    font-family: Georgia, 'Times New Roman', Times, serif;
+.text-subtitle {
     font-size: 20px;
+    margin-top: 0px;
 }
 
-
-
-.div-main-content{
+.div-main-content {
     width: calc(100% - 200px);
+    max-width: 900px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    padding: 0 20px 0 20px;
-
+    padding: 0 20px 20px 20px;
+    margin-bottom: 30px;
     border: 2px solid rgb(90, 62, 53);
     border-radius: 20px;
     background-color: rgb(231, 231, 229);
+    scroll-margin-top: 75px;
 }
 
-.text-title-main-content{
-    margin-bottom: 5px;
-    
-    font-family: Georgia, 'Times New Roman', Times, serif;
+.text-title-main-content {
+    margin-bottom: 15px;
     font-size: 25px;
     color: rgb(90, 62, 53);
 }
 
-.div-body-main-content{
-    display: flex;
-    flex-direction: column;
-    justify-content: baseline;
+.div-body-main-content {
+    width: 100%;
     text-align: justify;
-    hyphens: auto;
-    width: 100%;
-
-    font-family: Georgia, 'Times New Roman', Times, serif;
     font-size: 17px;
-    color: rgb(0, 0, 0);
-    line-height: 0.5;
+    line-height: 1.6;
 }
 
-.div-body-main-content li{
-    line-height: 1.5;
+.div-body-main-content img {
+    display: block;
+    margin: 20px auto;
+    max-width: 80%;
+    max-height: 50vh;
+    border-radius: 10px;
 }
 
-.div-body-main-content img{
-    max-width: 45%;
-    max-height: 40vh;
+.btn-latest-article {
+    display: inline-block;
+    margin-top: 30px;
+    padding: 15px 25px;
+    background-color: rgb(90, 62, 53);
+    color: white;
+    text-decoration: none;
+    border-radius: 10px;
+    font-family: Georgia, serif;
+    transition: transform 0.3s ease, background-color 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    color: #e8eaed;
+}
+
+.btn-latest-article:hover {
+    background-color: rgb(110, 82, 73);
+    transform: translateY(-2px);
+    color: #e8eaed;
+}
+
+.btn-latest-article strong {
+    margin-left: 5px;
+    text-decoration: underline;
+    color: #e8eaed;
+}
+
+
+.gallery-container {
     width: 100%;
-    height: auto;
-    object-fit: contain;
+    padding: 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+    box-sizing: border-box;
+}
+
+.gallery-item {
+    display: block;
+    overflow: hidden;
+    border-radius: 10px;
+    border: 2px solid transparent;
+    transition: transform 0.3s ease, border-color 0.3s ease;
+    cursor: pointer;
+    background-color: rgb(231, 231, 229);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.gallery-item img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+.gallery-item:hover {
+    transform: translateY(-5px);
+    border-color: rgb(90, 62, 53);
+}
+
+.gallery-item:hover img {
+    transform: scale(1.05);
 }

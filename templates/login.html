@@ -4,9 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Projet Euro ADC</title>
-    <link rel="icon" type="svg" href="{{ url_for('static', filename='images/leaf.svg') }}">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-    <script src="{{ url_for('static', filename='js/scripts.js') }}" defer></script>
 </head>
 <body>
     <div id="side-menu" class="side-menu">
@@ -40,20 +39,29 @@
         <div class="div-subtitle">
             <p class="text-subtitle">Un projet de la section européenne du lycée Arcisse de Caumont</p>
         </div>
-
-        {% if home_article %}
-        <div class="div-main-content">
-            <p class="text-title-main-content">{{ home_article.title }}</p>
-            <div class="div-body-main-content">
-                {{ home_article.content | safe }}
-            </div>
-            <a href="/articles" class="btn-latest-article">
-                Le dernier article : <b>{{ latest_name }}</b>
-            </a>
-        </div>
-        {% else %}
-        <p>Le fichier d'accueil est introuvable.</p>
-        {% endif %}
     </div>
+
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Mot de passe">
+    <button onclick="login()">Se connecter</button>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const supabase_client = supabase.createClient('{{ url_provided }}', '{{ key_provided }}');
+
+        async function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            const { data, error } = await supabase_client.auth.signInWithPassword({ email, password });
+
+            if (error) {
+                alert('Erreur: ' + error.message);
+            } else {
+                document.cookie = 'supabase_token=' + data.session.access_token + '; path=/; max-age=3600';
+                window.location.href = '/admin';
+            }
+        }
+    </script>
 </body>
 </html>

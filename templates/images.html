@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Projet Euro ADC</title>
+    <title>Galerie Images - Projet Euro ADC</title>
     <link rel="icon" type="svg" href="{{ url_for('static', filename='images/leaf.svg') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <script src="{{ url_for('static', filename='js/scripts.js') }}" defer></script>
@@ -26,9 +26,9 @@
 
     <div id="main-wrapper">
         <div class="div-icon-menu" id="div-icon-menu"></div>
-        <img src="{{ url_for('static', filename='images/menu.svg') }}"
-             alt="MENU"
-             class="image-icon-menu"
+        <img src="{{ url_for('static', filename='images/menu.svg') }}" 
+             alt="MENU" 
+             class="image-icon-menu" 
              onclick="toggleMenu()">
 
         <header id="main-header">
@@ -36,24 +36,21 @@
                 <p class="text-main-title">Voices from behind the graves</p>
             </div>
         </header>
-
         <div class="div-subtitle">
             <p class="text-subtitle">Un projet de la section européenne du lycée Arcisse de Caumont</p>
         </div>
 
-        {% if home_article %}
         <div class="div-main-content">
-            <p class="text-title-main-content">{{ home_article.title }}</p>
-            <div class="div-body-main-content">
-                {{ home_article.content | safe }}
+            <div class="gallery-container">
+                {% for img in images %}
+                    <a href="{{ img.link_to }}" class="gallery-item">
+                        <img src="{{ img.url }}" alt="Image de l'article">
+                    </a>
+                {% else %}
+                    <p>Aucune image disponible dans la galerie pour le moment.</p>
+                {% endfor %}
             </div>
-            <a href="/articles" class="btn-latest-article">
-                Le dernier article : <b>{{ latest_name }}</b>
-            </a>
         </div>
-        {% else %}
-        <p>Le fichier d'accueil est introuvable.</p>
-        {% endif %}
     </div>
 </body>
 </html>
