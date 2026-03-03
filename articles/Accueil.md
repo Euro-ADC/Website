@@ -12,7 +12,7 @@ Tout a commencé par une question simple : *Qui sont les soldats enterrés dans 
 
 
 
-Depuis le lancement du projet, nous participons aux commémorations locales afin de mieux comprendre le devoir de mémoire et de nous engager concrètement dans sa transmission. Nous travaillons notamment sur des soldats appartenant au régiment des The Queen's Own Cameron Highlanders of Canada, en retraçant leur parcours grâce aux archives et aux témoignages.
+Depuis le lancement du projet, nous participons aux commémorations locales afin de mieux comprendre le devoir de mémoire et de nous engager concrètement dans sa transmission. Nous travaillons notamment sur des soldats appartenant au régiment des *The Queen's Own Cameron Highlanders of Canada*, en retraçant leur parcours grâce aux archives et aux témoignages.
 
 
 
