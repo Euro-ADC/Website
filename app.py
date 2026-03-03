@@ -203,6 +203,37 @@ def handle_image_upload():
     except Exception as e:
         return f"Erreur Storage : {e}", 500
 
+from datetime import datetime
+
+@app.route('/sitemap.xml')
+def sitemap():
+    pages = []
+    base_url = request.url_root.rstrip('/') 
+    today = datetime.now().strftime('%Y-%m-%d')
+
+    pages.append({'loc': f"{base_url}/", 'lastmod': today, 'priority': '1.0', 'changefreq': 'daily'})
+    pages.append({'loc': f"{base_url}/articles", 'lastmod': today, 'priority': '0.8', 'changefreq': 'weekly'})
+    pages.append({'loc': f"{base_url}/images", 'lastmod': today, 'priority': '0.7', 'changefreq': 'monthly'})
+
+    try:
+        response = supabase.table("articles").select("ref").execute()
+        for art in response.data:
+            pages.append({
+                'loc': f"{base_url}/articles#{art['ref']}",
+                'lastmod': today,
+                'priority': '0.6',
+                'changefreq': 'monthly'
+            })
+    except Exception as e:
+        print(f"Erreur génération sitemap : {e}")
+
+    return render_template('sitemap_xml.html', pages=pages), 200, {'Content-Type': 'application/xml'}
+
+from flask import send_from_directory
+
+@app.route('/robots.txt')
+def robots():
+    return send_from_directory(os.path.join(app.root_path, 'static'), 'robots.txt')
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 8080))
