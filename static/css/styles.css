@@ -156,10 +156,11 @@ a:hover {
     justify-content: center;
 }
 
-.text-main-title {
+h1.text-main-title {
     font-size: 30px;
     margin: 0;
     transition: color 0.6s ease;
+    font-weight: normal;
 }
 
 .div-subtitle {
@@ -187,9 +188,10 @@ a:hover {
     scroll-margin-top: 75px;
 }
 
-.text-title-main-content {
+h2.text-title-main-content {
     margin-bottom: 15px;
     font-size: 25px;
+    font-weight: normal;
     color: rgb(90, 62, 53);
 }
 

@@ -1,12 +1,16 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta name="google-site-verification" content="vNRtHqODAXFLHwvzRwlnKx1Wc_iAznSGa3h5YXmMVPc" />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Projet Euro ADC - Accueil</title>
+    <meta name="description" content="Découvrez Voices from behind the graves, un projet historique de la section européenne du Lycée Arcisse de Caumont, explorant les récits du passé, en collaboration avec nos partenaires Canadiens">
+
+    <meta name="google-site-verification" content="vNRtHqODAXFLHwvzRwlnKx1Wc_iAznSGa3h5YXmMVPc" />
+
     <meta property="og:title" content="Projet Euro ADC - Accueil">
     <meta property="og:type" content="website">
+
     <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/leaf.svg') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <script src="{{ url_for('static', filename='js/scripts.js') }}" defer></script>
@@ -36,7 +40,7 @@
 
         <header id="main-header">
             <div class="div-main-title">
-                <p class="text-main-title">Voices from behind the graves</p>
+                <h1 class="text-main-title">Voices from behind the graves</h2>
             </div>
         </header>
 
@@ -44,18 +48,28 @@
             <p class="text-subtitle">Un projet de la section européenne du lycée Arcisse de Caumont</p>
         </div>
 
-        {% if home_article %}
+        {% if home_fr %}
         <div class="div-main-content">
-            <p class="text-title-main-content">{{ home_article.title }}</p>
+            <h2 class="text-title-main-content">{{ home_fr.title }}</h2>
             <div class="div-body-main-content">
-                {{ home_article.content | safe }}
+                {{ home_fr.content | safe }}
             </div>
             <a href="/articles" class="btn-latest-article">
                 Le dernier article : <b>{{ latest_name }}</b>
             </a>
         </div>
-        {% else %}
-        <p>Le fichier d'accueil est introuvable.</p>
+        {% endif %}
+
+        {% if home_en %}
+        <div class="div-main-content">
+            <h2 class="text-title-main-content">{{ home_en.title }}</h2>
+            <div class="div-body-main-content">
+                {{ home_en.content | safe }}
+            </div>
+            <a href="/articles" class="btn-latest-article">
+                Latest article: <b>{{ latest_name }}</b>
+            </a>
+        </div>
         {% endif %}
     </div>
 </body>

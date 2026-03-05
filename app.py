@@ -1,9 +1,11 @@
 import os
 import re
 import markdown
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, send_from_directory
 from supabase import create_client, Client
 from dotenv import load_dotenv
+from datetime import datetime
+import json
 
 #load_dotenv("Euro-ADC-Website.env")
 
@@ -15,127 +17,150 @@ BUCKET_NAME = "images"
 
 supabase: Client = create_client(URL, KEY)
 
-
-def get_user_from_token():
-    token = request.cookies.get('supabase_token')
-    if not token:
+def get_user_from_token() :
+    token = request.cookies.get("supabase_token")
+    if not token :
         return None
     try:
         return supabase.auth.get_user(token)
     except:
         return None
 
+def replace_image_tags(content, base_url) :
+    def get_alt_text(match) :
+        filename = match.group(1)
 
-def replace_image_tags(content, base_url):
+        name_part = filename.rsplit(".", 1)[0]
+        
+        if "_" in name_part:
+            ref = name_part.rsplit("_", 1)[0]
+        else:
+            ref = name_part
+                
+        md_path = os.path.join("articles", f"{ref}.md")
+        if os.path.exists(md_path) :
+            with open(md_path, "r", encoding="utf-8") as f :
+                first_line = f.readline()
+                if first_line :
+                    alt_text = first_line.lstrip("# ").strip()
+        else :
+            response = supabase.table("articles").select("*").eq("ref", ref).order("id", desc=True).execute()
+            alt_text = response.data[0]["title"] if len(response.data) == 1 else filename
+
+        return rf'<img src="{base_url}{filename}" alt="{alt_text}" class="img-article">'
+
     pattern = r"\[([^\]]+)\]"
-    replacement = rf'<img src="{base_url}\1" alt="\1" class="article-image">'
-    return re.sub(pattern, replacement, content)
+    return re.sub(pattern, get_alt_text, content)
 
+def get_home_article(filename) :
+    path = os.path.join("articles", filename)
+    if os.path.exists(path):
+        with open(path, "r", encoding="utf-8") as f :
+            lines = f.readlines()
+            if lines :
+                title = lines[0].lstrip("# ").strip()
+                body_md = "".join(lines[1:])
+                base_url = f"{URL}/storage/v1/object/public/{BUCKET_NAME}/"
+                
+                content_with_images = replace_image_tags(body_md, base_url)
+                
+                content_html = markdown.markdown(content_with_images, extensions=["extra"])
+                return {"title": title, "content": content_html}
 
-@app.route('/')
+    return None
+
+@app.route("/")
 def index():
-    home_article = None
+    home_fr = get_home_article("Index_French.md")
+    home_en = get_home_article("Index_English.md")
+    
     latest_name = "..."
+    response = supabase.table("articles").select("title").order("id", desc=True).limit(1).execute()
+    if response.data:
+        latest_name = response.data[0]["title"]
 
-    path_accueil = os.path.join("articles", "Accueil.md")
-    if os.path.exists(path_accueil):
-        try:
-            with open(path_accueil, "r", encoding="utf-8") as f:
-                lines = f.readlines()
-                if lines:
-                    title = lines[0].lstrip('# ').strip()
-                    body_md = "".join(lines[1:])
-                    base_url = f"{URL}/storage/v1/object/public/{BUCKET_NAME}/"
-                    pattern = r"\[(.*?)\.(jpg|jpeg|png|webp|gif)\]"
-                    replacement = rf'<img src="{base_url}\1.\2" class="img-article">'
-                    content_with_images = re.sub(pattern, replacement, body_md).replace("\\", "")
-                    content_html = markdown.markdown(content_with_images, extensions=['extra'])
-                    home_article = {'title': title, 'content': content_html}
-        except Exception as e:
-            print(f"Erreur lecture Accueil.md : {e}")
+    return render_template("index.html",
+                           home_fr=home_fr,
+                           home_en=home_en,
+                           latest_name=latest_name)
 
-    try:
-        response = supabase.table("articles").select("title").order("id", desc=True).limit(1).execute()
-        if response.data:
-            latest_name = response.data[0]['title']
-    except Exception as e:
-        print(f"Erreur récupération dernier article : {e}")
-
-    return render_template('index.html', home_article=home_article, latest_name=latest_name)
-
-
-@app.route('/articles')
+@app.route("/articles")
 def list_articles():
-    try:
-        response = supabase.table("articles").select("*").order("id", desc=True).execute()
-        articles_db = response.data
-    except Exception as e:
-        print(f"Erreur : {e}")
-        articles_db = []
-
+    response = supabase.table("articles").select("*").order("id", desc=True).execute()
+    articles_db = response.data
+    
     articles_data = []
-    base_url = f"{URL}/storage/v1/object/public/{BUCKET_NAME}/"
+    # On prépare la liste pour le JSON-LD
+    json_ld_items = []
+    base_url = request.url_root.rstrip('/')
 
-    for art in articles_db:
-        content_html = markdown.markdown(art['content'], extensions=['extra'])
-        content_html = replace_image_tags(content_html, base_url)
-        title_slug = re.sub(r'[^\w\s-]', '', art['title']).strip().lower().replace(' ', '-')
-        article_ref = art.get('ref') or title_slug
-
+    for index, art in enumerate(articles_db):
+        # ... ton code actuel pour transformer le markdown ...
+        content_html = markdown.markdown(art["content"], extensions=["extra"])
+        
+        # On crée l'URL avec l'ancre
+        article_url = f"{base_url}/articles#{art['ref']}"
+        
         articles_data.append({
-            'title': art['title'],
-            'content': content_html,
-            'ref': article_ref
+            "title": art["title"],
+            "content": content_html,
+            "ref": art["ref"]
         })
 
-    return render_template('articles.html', articles=articles_data)
+        # Structure JSON-LD pour chaque article
+        json_ld_items.append({
+            "@type": "ListItem",
+            "position": index + 1,
+            "url": article_url,
+            "name": art["title"]
+        })
 
+    # On crée l'objet global
+    schema_data = {
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        "itemListElement": json_ld_items
+    }
 
-@app.route('/images')
-def list_images():
+    return render_template("articles.html", 
+                           articles=articles_data, 
+                           schema_json=json.dumps(schema_data))
+
+@app.route("/images")
+def list_images() :
     images_data = []
-    try:
-        storage_client = supabase.storage.from_(BUCKET_NAME)
-        files = storage_client.list()
-        files = reversed(files)
+    storage_client = supabase.storage.from_(BUCKET_NAME)
+    files = storage_client.list()
+    files = reversed(files)
 
-        base_url = f"{URL}/storage/v1/object/public/{BUCKET_NAME}/"
+    base_url = f"{URL}/storage/v1/object/public/{BUCKET_NAME}/"
 
-        for f in files:
-            filename = f['name']
+    for f in files:
+        filename = f["name"]
+
+        name_part, ext = os.path.splitext(filename)
+        
+        parts = name_part.rsplit("_", 1)
+        
+        if len(parts) == 2 :
+            article_ref = parts[0]
             
-            if filename == '.emptyFolderPlaceholder':
-                continue
-
-            name_part, ext = os.path.splitext(filename)
-            
-            parts = name_part.rsplit('_', 1)
-            
-            if len(parts) == 2:
-                article_ref = parts[0]
-                
-                images_data.append({
-                    'url': f"{base_url}{filename}",
-                    'link_to': url_for('list_articles', _anchor=article_ref)
-                })
-
-    except Exception as e:
-        print(f"Erreur lors de la récupération des images : {e}")
+            images_data.append({
+                "url": f"{base_url}{filename}",
+                "link_to": url_for('list_articles', _anchor=article_ref)
+            })
 
     return render_template('images.html', images=images_data)
-
 
 @app.route('/login')
 def login():
     return render_template('login.html', url_provided=URL, key_provided=KEY)
-
 
 @app.route('/admin')
 def admin_page():
     if not get_user_from_token():
         return redirect(url_for('login'))
     return render_template('admin.html')
-
 
 @app.route('/admin/upload', methods=['POST'])
 def upload_article():
@@ -172,7 +197,6 @@ def upload_article():
     except Exception as e:
         return f"Erreur BDD : {e}", 500
 
-
 @app.route('/admin/upload_image', methods=['POST'])
 def handle_image_upload():
     token = request.cookies.get('supabase_token')
@@ -203,8 +227,6 @@ def handle_image_upload():
     except Exception as e:
         return f"Erreur Storage : {e}", 500
 
-from datetime import datetime
-
 @app.route('/sitemap.xml')
 def sitemap():
     pages = []
@@ -228,8 +250,6 @@ def sitemap():
         print(f"Erreur génération sitemap : {e}")
 
     return render_template('sitemap_xml.html', pages=pages), 200, {'Content-Type': 'application/xml'}
-
-from flask import send_from_directory
 
 @app.route('/robots.txt')
 def robots():
